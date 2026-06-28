@@ -142,14 +142,35 @@ const addressRegex = computed(() => {
 });
 
 const generateNameLoading = ref(false);
-const generateName = async () => {
+const randomNameWords = [
+    'amber', 'atlas', 'blue', 'bright', 'cedar', 'clear', 'cosmic', 'daily',
+    'dawn', 'delta', 'echo', 'ember', 'fresh', 'gold', 'green', 'harbor',
+    'lunar', 'maple', 'metro', 'mint', 'nova', 'ocean', 'pixel', 'prime',
+    'quiet', 'rapid', 'river', 'silver', 'solar', 'stone', 'urban', 'violet'
+];
+
+const randomNameSuffix = () => {
+    const array = new Uint32Array(1);
+    if (globalThis.crypto?.getRandomValues) {
+        globalThis.crypto.getRandomValues(array);
+        return array[0].toString(36).slice(0, 5);
+    }
+    return Math.floor(Math.random() * 0xffffff).toString(36);
+};
+
+const randomWord = () => {
+    const array = new Uint32Array(1);
+    if (globalThis.crypto?.getRandomValues) {
+        globalThis.crypto.getRandomValues(array);
+        return randomNameWords[array[0] % randomNameWords.length];
+    }
+    return randomNameWords[Math.floor(Math.random() * randomNameWords.length)];
+};
+
+const generateName = () => {
     try {
         generateNameLoading.value = true;
-        const { faker } = await import('https://esm.sh/@faker-js/faker');
-        emailName.value = faker.internet.email()
-            .split('@')[0]
-            .replace(/\s+/g, '.')
-            .replace(/\.{2,}/g, '.')
+        emailName.value = `${randomWord()}.${randomWord()}.${randomNameSuffix()}`
             .replace(addressRegex.value, '')
             .toLowerCase();
         // support maxAddressLen
